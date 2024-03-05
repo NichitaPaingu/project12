@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root   #пароль
+      MYSQL_DATABASE: wp      #название базы данных
+      MYSQL_USER: wp-user           #логин
+      MYSQL_PASSWORD: wp-pass #пароль при подключении
+    ports:
+      - 8889:3306      #на стороне сервера 3306
+    volumes:
+      - wp-data:/var/lib/mysql       #куда мы сохраняем все данные этого образа (дом) wp-data куда и с чем соединяем
+    
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - 8888:80
+    environment:
+      WORDPRESS_DB_HOST: db #к какому хочту к какой базе данных мы подключаемся (сервис)
+      WORDPRESS_DB_USER: wp-user #
+      WORDPRESS_DB_PASSWORD: wp-pass
+      WORDPRESS_DB_NAME: wp
+    depends_on:     # зависимость от первого сервиса 
+      - db
+    volumes:
+      - ./wp-files:/var/www/html
+
+  phpmyadmin:
+    image: phpmyadmin
+    depends_on:
+      - db
+    ports:
+      - 3001:80
+    environment:
+      PMA_HOST: db
+      MYSQL_USER: wp-user
+      MYSQL_PASSWORD: wp-pass
+      MYSQL_ROOT_PASSWORD: root
+
+
+
+volumes:
+  wp-data:    #папка где бы мудем хранить всю информацию связанную с mysql
+
+
+
+#Команды
+#docker-compose build позволяет построить сборку 
+#docker-compose up позволяет запустить все наши сервисы 
